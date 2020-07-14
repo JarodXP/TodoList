@@ -2,94 +2,151 @@
 
 namespace App\Tests\Controller;
 
-use InvalidArgumentException;
+use App\Entity\User;
+use Doctrine\ORM\EntityRepository;
+use Hautelook\AliceBundle\PhpUnit\RecreateDatabaseTrait;
+use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\DomCrawler\Crawler;
 
 class UserControllerTest extends WebTestCase
 {
-    private ?KernelBrowser $_client = null;
-    private ?Crawler $_crawler = null;
+    use RefreshDatabaseTrait;
+    
+    protected ?KernelBrowser $client = null;
+    protected ?Crawler $crawler = null;
 
     public function setUp()
     {
-        $this->_client = static::createClient();
-        $this->_client->followRedirects(true);
+        $this->client = static::createClient();
+        $this->client->followRedirects();
     }
 
     /**
-     * Asserts that the create user form is correctly displayed
+     * Test listAction
      */
-    public function assertCreateUserFormFieldsCorrectlyDisplayed()
+    public function testListActionReturn200InSuccess()
     {
-        $content = $this->_client->getResponse()->getContent();
+        $this->client->request('GET', '/users');
 
-        $this->assertStringContainsString('<form name="user" method="post" action="/users/create">', $content);
-        $this->assertStringContainsString('<input type="text" id="user_username" name="user[username]" required="required" class="form-control" />', $content);
-        $this->assertStringContainsString('<input type="password" id="user_password_first" name="user[password][first]" required="required" class="form-control" />', $content);
-        $this->assertStringContainsString('<input type="password" id="user_password_second" name="user[password][second]" required="required" class="form-control" />', $content);
-        $this->assertStringContainsString('<input type="email" id="user_email" name="user[email]" required="required" class="form-control" />', $content);
-        $this->assertStringContainsString('<input type="hidden" id="user__token" name="user[_token]" value=', $content);
-        $this->assertStringContainsString('<button type="submit" class="btn btn-success pull-right">Ajouter</button>', $content);
+        $this->assertResponseStatusCodeSame(200);
     }
 
     /**
-     * Asserts that the client is correctly redirected after creating user
+     * Test listAction
      */
-    public function assertCreateUserRedirectedAfterSuccessfullSubmission()
+    public function testCorrectNbOfUsersInList()
     {
-        $this->_crawler = $this->_client->submitForm('Ajouter', [
-            'user[username]' => 'Beber',
-            'user[password][first]' => 'azerty',
-            'user[password][second]' => 'azerty',
-            'user[email]' => 'beber@gmail.com'
-        ]);
+        $this->crawler = $this->client->request('GET', '/users');
 
-        //Asserts alert success message
-        $alert = $this->_crawler->filter('div.alert-success > strong')->text();
-        $this->assertSame('Superbe !', $alert);
-    }
-
-    public function assertUsersList()
-    {
         //Gets the number of users in database
-        $container = self::$container;
-        $manager = $container->get('doctrine.orm.default_entity_manager');
-        $userRepo = $container->get('doctrine.orm.container_repository_factory')->getRepository($manager, 'App:User');
-        $usersInDb = count($userRepo->findAll());
+        $usersInDb = count($this->getUserRepo()->findAll());
 
         //Counts the number of users displayed in the list
-        $usersInList = count($this->_crawler->filter('tbody > tr'));
+        $usersInList = count($this->crawler->filter('tbody > tr'));
 
         $this->assertEquals($usersInDb, $usersInList);
     }
 
     /**
-     * Tests that the client is correctly redirected after creating user
+     * Test createAction
+     * Tests that the client is correctly redirected after creating user and that a user has been created
      */
-    public function testCreateUserWithFormValid()
+    public function testSubmitUserControllerValidForm()
     {
-        //1. Client arrives on the landing page
-        $this->crawler = $this->_client->request('GET', '/');
+        $this->client->followRedirects(false);
+        
+        // Client arrives on the create user page
+        $this->crawler = $this->client->request('GET', '/users/create');
 
-        //2. Clicks on the link to create a user
-        $this->_client->clickLink('Créer un utilisateur');
+        //Submits the form
+        $this->submitUserForm('Ajouter');
 
-        //3. Asserts form is correctly displayed
-        $this->assertCreateUserFormFieldsCorrectlyDisplayed();
+        //Asserts redirection
+        $this->assertResponseRedirects('/users');
 
-        //4. Asserts that once the form is submitted, the client is redirected and alerted
-        $this->assertCreateUserRedirectedAfterSuccessfullSubmission();
+        $this->client->followRedirect();
 
-        //5. Asserts the list of existing users is correctly displayed
-        $this->assertUsersList();
+        //Asserts that alert success message is displayed
+        $this->assertSelectorExists('div.alert-success');
+
+        //Asserts a user has been created
+        $this->assertEquals(1, count($this->getUserRepo()->findBy(['email' => 'beber@gmail.com'])));
+    }
+
+    /**
+     * Test createAction
+     * Tests that no user is created and error message displayed when using existing email
+     */
+    public function testSubmitCreateUserFormWithExistingEmail()
+    {
+        // Client arrives on the create user page
+        $this->client->request('GET', '/users/create');
+
+        $formValues = [
+                'username' => 'Reuno',
+                'firstPassword' => 'azerty',
+                'secondPassword' => 'azerty',
+                'email' => 'unique@unique.com'
+            ];
+
+        //Submits the form
+        $this->submitUserForm('Ajouter', $formValues);
+
+        //Asserts no user has been created
+        $this->assertEquals(1, count($this->getUserRepo()->findBy(['email' => 'unique@unique.com'])));
+
+        //Asserts error message
+        $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
+        $this->assertSame('Cette adresse mail existe déjà', $alert);
+    }
+
+    /**
+     * Tests that no user is registered and help messages are displayed when form is not valid
+     * @dataProvider nonValidFormFieldProvider
+     */
+    public function testSubmitUserControllerNonValidForm(array $formValues, string $expected)
+    {
+        $this->client->request('GET', '/users/create');
+
+        // Temporay: while password validation non available
+        // When available, remove the following lines and uncomment provider's empty password
+        if ($formValues['firstPassword'] == '') {// Temp
+            $formValues['firstPassword'] = 'azerty';// Temp
+        }
+
+        $passwordValidation = false;// Temp
+        
+        $this->assertTrue($passwordValidation, 'Test to be removed when constraint added on null password');// Temp
+
+        //Submit the form with provider data
+        $this->submitUserForm('Ajouter', $formValues);
+
+        //Asserts no user has been created
+        $this->assertEquals(0, count($this->getUserRepo()->findBy(['email' => $formValues['email']])));
+
+        //Asserts error message
+        $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
+        $this->assertSame($expected, $alert);
+    }
+
+    /**
+     * Test code return for editAction
+     */
+    public function testEditActionReturn200InSuccess()
+    {
+        $userId = $this->getUserRepo()->findOneBy(['email' => 'unique@unique.com'])->getId();
+
+        $this->client->request('GET', '/users/'.$userId.'/edit');
+        
+        $this->assertResponseStatusCodeSame('200');
     }
 
     /**
      * Provides a set of form field values for create user form
      */
-    public function formFieldProvider()
+    public function nonValidFormFieldProvider()
     {
         return [
                 [
@@ -112,16 +169,16 @@ class UserControllerTest extends WebTestCase
                                     ],
                     'expected' => 'Vous devez saisir un nom d\'utilisateur.'
                 ],
-                [
+                /*[
                     //Password is empty
                     'formValues' => [
-                                    'username' => '',
-                                    'firstPassword' => 'a',
-                                    'secondPassword' => 'a',
+                                    'username' => 'junior',
+                                    'firstPassword' => '',
+                                    'secondPassword' => '',
                                     'email' => 'junior@gmail.com'
                                     ],
                     'expected' => 'Vous devez saisir un mot de passe.'
-                ],
+                ],*/
                 [
                     //Email is empty
                     'formValues' => [
@@ -136,26 +193,35 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
-     * Tests that no user is registered and help messages are displayed when form is not valid
-     * @dataProvider formFieldProvider
+     * Sets a default value for create user form and submits
      */
-    public function testCreateUserWithFormNonValid(array $formValues, string $expected)
+    protected function submitUserForm(string $btnText, array $formValues = null)
     {
-        $this->_client->request('GET', '/users/create');
+        if (is_null($formValues)) {
+            $formValues = [
+                'username' => 'Beber',
+                'firstPassword' => 'azerty',
+                'secondPassword' => 'azerty',
+                'email' => 'beber@gmail.com'
+            ];
+        }
 
-        $this->_crawler = $this->_client->submitForm('Ajouter', [
+        $this->crawler = $this->client->submitForm($btnText, [
                 'user[username]' => $formValues['username'],
                 'user[password][first]' => $formValues['firstPassword'],
                 'user[password][second]' => $formValues['secondPassword'],
                 'user[email]' => $formValues['email']
             ]);
-
-        $alert = $this->_crawler->filter('div.has-error > .help-block li')->text();
-
-        $this->assertSame($expected, $alert);
     }
 
-    public function testEditUser()
+    /**
+     * Initiates the kernel and gets the user repository
+     */
+    protected static function getUserRepo():EntityRepository
     {
+        self::bootKernel();
+        $container = self::$container;
+        $manager = $container->get('doctrine.orm.default_entity_manager');
+        return $container->get('doctrine.orm.container_repository_factory')->getRepository($manager, 'App:User');
     }
 }

@@ -1,16 +1,4 @@
 {
-    "dama/doctrine-test-bundle": {
-        "version": "4.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "master",
-            "version": "4.0",
-            "ref": "56eaa387b5e48ebcc7c95a893b47dfa1ad51449c"
-        },
-        "files": [
-            "./config/packages/test/dama_doctrine_test_bundle.yaml"
-        ]
-    },
     "doctrine/annotations": {
         "version": "1.0",
         "recipe": {
@@ -54,16 +42,16 @@
         ]
     },
     "doctrine/doctrine-migrations-bundle": {
-        "version": "2.2",
+        "version": "1.2",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "master",
-            "version": "2.2",
-            "ref": "baaa439e3e3179e69e3da84b671f0a3e4a2f56ad"
+            "version": "1.2",
+            "ref": "c1431086fec31f17fbcfe6d6d7e92059458facc1"
         },
         "files": [
             "./config/packages/doctrine_migrations.yaml",
-            "./migrations/.gitignore"
+            "./src/Migrations/.gitignore"
         ]
     },
     "doctrine/event-manager": {
@@ -79,7 +67,7 @@
         "version": "1.2.1"
     },
     "doctrine/migrations": {
-        "version": "3.0.1"
+        "version": "2.2.1"
     },
     "doctrine/orm": {
         "version": "v2.7.3"
@@ -113,6 +101,15 @@
             "./fixtures/.gitignore"
         ]
     },
+    "laminas/laminas-code": {
+        "version": "3.4.1"
+    },
+    "laminas/laminas-eventmanager": {
+        "version": "3.2.1"
+    },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.0.4"
+    },
     "myclabs/deep-copy": {
         "version": "1.10.1"
     },
@@ -133,7 +130,7 @@
         "version": "1.4.2"
     },
     "ocramius/proxy-manager": {
-        "version": "2.2.3"
+        "version": "2.8.0"
     },
     "php": {
         "version": "7.4"
@@ -287,7 +284,7 @@
         "version": "v5.1.2"
     },
     "symfony/orm-pack": {
-        "version": "v1.0.8"
+        "version": "v1.1.0"
     },
     "symfony/phpunit-bridge": {
         "version": "4.3",
@@ -445,6 +442,9 @@
     },
     "twig/twig": {
         "version": "v3.0.4"
+    },
+    "webimpress/safe-writer": {
+        "version": "2.0.1"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"
