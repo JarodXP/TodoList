@@ -1,10 +1,9 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Tests\Controller;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityRepository;
-use Hautelook\AliceBundle\PhpUnit\RecreateDatabaseTrait;
 use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -13,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 class UserControllerTest extends WebTestCase
 {
     use RefreshDatabaseTrait;
+    use ControllerUtilsTrait;
     
     protected ?KernelBrowser $client = null;
     protected ?Crawler $crawler = null;
@@ -41,7 +41,7 @@ class UserControllerTest extends WebTestCase
         $this->crawler = $this->client->request('GET', '/users');
 
         //Gets the number of users in database
-        $usersInDb = count($this->getUserRepo()->findAll());
+        $usersInDb = count($this->getEntityRepo('App:User')->findAll());
 
         //Counts the number of users displayed in the list
         $usersInList = count($this->crawler->filter('tbody > tr'));
@@ -72,7 +72,7 @@ class UserControllerTest extends WebTestCase
         $this->assertSelectorExists('div.alert-success');
 
         //Asserts a user has been created
-        $this->assertEquals(1, count($this->getUserRepo()->findBy(['email' => 'beber@gmail.com'])));
+        $this->assertEquals(1, count($this->getEntityRepo('App:User')->findBy(['email' => 'beber@gmail.com'])));
     }
 
     /**
@@ -95,7 +95,7 @@ class UserControllerTest extends WebTestCase
         $this->submitUserForm('Ajouter', $formValues);
 
         //Asserts no user has been created
-        $this->assertEquals(1, count($this->getUserRepo()->findBy(['email' => 'unique@unique.com'])));
+        $this->assertEquals(1, count($this->getEntityRepo('App:User')->findBy(['email' => 'unique@unique.com'])));
 
         //Asserts error message
         $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
@@ -124,7 +124,7 @@ class UserControllerTest extends WebTestCase
         $this->submitUserForm('Ajouter', $formValues);
 
         //Asserts no user has been created
-        $this->assertEquals(0, count($this->getUserRepo()->findBy(['email' => $formValues['email']])));
+        $this->assertEquals(0, count($this->getEntityRepo('App:User')->findBy(['email' => $formValues['email']])));
 
         //Asserts error message
         $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
@@ -136,11 +136,11 @@ class UserControllerTest extends WebTestCase
      */
     public function testEditActionReturn200InSuccess()
     {
-        $userId = $this->getUserRepo()->findOneBy(['email' => 'unique@unique.com'])->getId();
+        $userId = $this->getEntityRepo('App:User')->findOneBy(['email' => 'unique@unique.com'])->getId();
 
         $this->client->request('GET', '/users/'.$userId.'/edit');
         
-        $this->assertResponseStatusCodeSame('200');
+        $this->assertResponseStatusCodeSame(200);
     }
 
     /**
@@ -212,16 +212,5 @@ class UserControllerTest extends WebTestCase
                 'user[password][second]' => $formValues['secondPassword'],
                 'user[email]' => $formValues['email']
             ]);
-    }
-
-    /**
-     * Initiates the kernel and gets the user repository
-     */
-    protected static function getUserRepo():EntityRepository
-    {
-        self::bootKernel();
-        $container = self::$container;
-        $manager = $container->get('doctrine.orm.default_entity_manager');
-        return $container->get('doctrine.orm.container_repository_factory')->getRepository($manager, 'App:User');
     }
 }
