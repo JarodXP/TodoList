@@ -1,0 +1,10 @@
+App\Entity\User:
+    user_{1..10}:
+        username: <userName()>
+        password: <password()>
+        email: <email()>
+
+    user_unique:
+        username: unique
+        password: azerty
+        email: unique@unique.com

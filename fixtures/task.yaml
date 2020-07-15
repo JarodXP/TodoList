@@ -1,0 +1,5 @@
+App\Entity\Task:
+    task_{1..10}:
+        createdAt: <dateTimeBetween('-90 days', 'now')>
+        title: <sentence(8, true)>
+        content: <paragraph(2)>

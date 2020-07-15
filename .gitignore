@@ -1,3 +1,6 @@
+###> VSCode ###
+/.vscode/*
+###< VSCode ###
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -14,3 +17,8 @@
 .phpunit.result.cache
 /phpunit.xml
 ###< symfony/phpunit-bridge ###
+
+###> phpunit coverage ###
+tests/coverage/*
+!tests/coverage/coverage.xml
+###< phpunit coverage ###
