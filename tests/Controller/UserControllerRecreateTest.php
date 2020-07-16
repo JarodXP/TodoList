@@ -1,18 +1,24 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App\Tests\Controller;
 
-use App\Entity\User;
 use Doctrine\ORM\EntityRepository;
 use Hautelook\AliceBundle\PhpUnit\RecreateDatabaseTrait;
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * This test class is related to the same than UserControllerTest,
+ * but uses a different database connection trait to avoid database
+ * conflict in the same transaction.
+ */
 class UserControllerRecreateTest extends WebTestCase
 {
     use RecreateDatabaseTrait;
+    use ControllerUtilsTrait;
 
     protected ?KernelBrowser $client = null;
     protected ?Crawler $crawler = null;
@@ -31,7 +37,7 @@ class UserControllerRecreateTest extends WebTestCase
     {
         $this->client->followRedirects(false);
         
-        $user = $this->getUserRepo()->findOneBy(['email' => 'unique@unique.com']);
+        $user = $this->getEntityRepo('App:User')->findOneBy(['email' => 'unique@unique.com']);
         $this->client->request('GET', '/users/'.$user->getId().'/edit');
 
         $formValues = [
@@ -67,16 +73,5 @@ class UserControllerRecreateTest extends WebTestCase
                 'user[password][second]' => $formValues['secondPassword'],
                 'user[email]' => $formValues['email']
             ]);
-    }
-
-    /**
-     * Initiates the kernel and gets the user repository
-     */
-    protected static function getUserRepo():EntityRepository
-    {
-        self::bootKernel();
-        $container = self::$container;
-        $manager = $container->get('doctrine.orm.default_entity_manager');
-        return $container->get('doctrine.orm.container_repository_factory')->getRepository($manager, 'App:User');
     }
 }
