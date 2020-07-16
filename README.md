@@ -1,5 +1,7 @@
 # Welcome on ToDoList  
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=JarodXP_TodoList&metric=alert_status)](https://sonarcloud.io/dashboard?id=JarodXP_TodoList)  [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=JarodXP_TodoList&metric=coverage)](https://sonarcloud.io/dashboard?id=JarodXP_TodoList)  
+
 This project is issued from the Openclassrooms Symfony course.  
 This is the context of the project:  
 As a developer, you arrive in a startup where a minimum viable product has been built.  
