@@ -19,7 +19,7 @@ class TaskControllerTest extends WebTestCase
     protected ?Crawler $crawler = null;
     protected UrlGeneratorInterface $urlGenerator;
 
-    public function setUp()
+    public function setUp():void
     {
         $this->client = static::createClient();
         $this->client->followRedirects();
