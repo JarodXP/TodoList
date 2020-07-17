@@ -4,10 +4,11 @@ declare(strict_types = 1);
 
 namespace App\Tests\Controller;
 
-use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class UserControllerTest extends WebTestCase
 {
@@ -31,6 +32,11 @@ class UserControllerTest extends WebTestCase
         $this->client->request('GET', '/users');
 
         $this->assertResponseStatusCodeSame(200);
+    }
+
+    public function testUsersActionRedirectsToLoginWhenUserIsNotAuthenticated()
+    {
+        $this->assertsRedirectionToLoginWhenUserIsNotAuthenticated('/users');
     }
 
     /**
@@ -114,11 +120,11 @@ class UserControllerTest extends WebTestCase
         // When available, remove the following lines and uncomment provider's empty password
         if ($formValues['firstPassword'] == '') {// Temp
             $formValues['firstPassword'] = 'azerty';// Temp
-        }
 
-        $passwordValidation = false;// Temp
+            $passwordValidation = false;// Temp
         
-        $this->assertTrue($passwordValidation, 'Test to be removed when constraint added on null password');// Temp
+            $this->assertTrue($passwordValidation, 'Test to be removed when constraint added on null password');// Temp
+        }
 
         //Submit the form with provider data
         $this->submitUserForm('Ajouter', $formValues);
@@ -169,7 +175,7 @@ class UserControllerTest extends WebTestCase
                                     ],
                     'expected' => 'Vous devez saisir un nom d\'utilisateur.'
                 ],
-                /*[
+                [
                     //Password is empty
                     'formValues' => [
                                     'username' => 'junior',
@@ -178,7 +184,7 @@ class UserControllerTest extends WebTestCase
                                     'email' => 'junior@gmail.com'
                                     ],
                     'expected' => 'Vous devez saisir un mot de passe.'
-                ],*/
+                ],
                 [
                     //Email is empty
                     'formValues' => [
