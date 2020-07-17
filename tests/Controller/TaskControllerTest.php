@@ -17,26 +17,16 @@ class TaskControllerTest extends WebTestCase
     
     protected ?KernelBrowser $client = null;
     protected ?Crawler $crawler = null;
-    protected UrlGeneratorInterface $urlGenerator;
 
     public function setUp():void
     {
         $this->client = static::createClient();
         $this->client->followRedirects();
-        $this->urlGenerator = static::$container->get('router');
     }
 
-    public function testListActionRedirectsToLoginWhenUserIsNotAuthenticated()
+    public function testTasksActionsRedirectsToLoginWhenUserIsNotAuthenticated()
     {
-        //Avoid client to redirect in order to catch the Response before
-        $this->client->followRedirects(false);
-        
-        $this->client->request('GET', '/tasks');
-
-        //Builds the absolute URL to compare with the location header
-        $url = $this->urlGenerator->generate('login', [], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        $this->assertResponseRedirects($url);
+        $this->assertsRedirectionToLoginWhenUserIsNotAuthenticated('/tasks');
     }
 
     /**
