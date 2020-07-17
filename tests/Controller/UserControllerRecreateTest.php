@@ -23,7 +23,7 @@ class UserControllerRecreateTest extends WebTestCase
     protected ?KernelBrowser $client = null;
     protected ?Crawler $crawler = null;
 
-    public function setUp()
+    public function setUp():void
     {
         $this->client = static::createClient();
         $this->client->followRedirects();

@@ -20,5 +20,4 @@
 
 ###> phpunit coverage ###
 tests/coverage/*
-!tests/coverage/coverage.xml
 ###< phpunit coverage ###
