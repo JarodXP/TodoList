@@ -35,6 +35,8 @@ class UserControllerRecreateTest extends WebTestCase
      */
     public function testEditUserSubmitForm()
     {
+        $this->authenticateClient();
+        
         $this->client->followRedirects(false);
         
         $user = $this->getEntityRepo('App:User')->findOneBy(['email' => 'unique@unique.com']);

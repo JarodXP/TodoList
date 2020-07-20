@@ -44,6 +44,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testCorrectNbOfUsersInList()
     {
+        $this->authenticateClient();
+
         $this->crawler = $this->client->request('GET', '/users');
 
         //Gets the number of users in database
@@ -61,6 +63,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitUserControllerValidForm()
     {
+        $this->authenticateClient();
+
         $this->client->followRedirects(false);
         
         // Client arrives on the create user page
@@ -87,6 +91,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitCreateUserFormWithExistingEmail()
     {
+        $this->authenticateClient();
+
         // Client arrives on the create user page
         $this->client->request('GET', '/users/create');
 
@@ -114,6 +120,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitUserControllerNonValidForm(array $formValues, string $expected)
     {
+        $this->authenticateClient();
+        
         $this->client->request('GET', '/users/create');
 
         //Submit the form with provider data
