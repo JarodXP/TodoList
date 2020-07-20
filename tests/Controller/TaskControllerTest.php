@@ -172,7 +172,7 @@ class TaskControllerTest extends WebTestCase
                                     'title' => 'aaaaaaaaaaaaaaaaaaaaaa',
                                     'content' => 'ras'
                                     ],
-                    'expected' => 'Le titre est trop long',
+                    'expected' => 'Le titre ne doit pas dépasser 20 caractères',
                     'message' => 'Validation constraint missing on title too long'
                 ]
         ];
