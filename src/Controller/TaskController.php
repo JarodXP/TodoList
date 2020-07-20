@@ -29,6 +29,10 @@ class TaskController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            
+            //Binds current authenticated user to task
+            $task->setUser($this->getUser());
+            
             $em = $this->getDoctrine()->getManager();
 
             $em->persist($task);
@@ -67,7 +71,7 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks/{id}/toggle", name="task_toggle")
-     * 
+     *
      */
     public function toggleTaskAction(Task $task)
     {

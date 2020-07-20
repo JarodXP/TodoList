@@ -67,6 +67,23 @@ class TaskControllerRecreateTest extends WebTestCase
         $this->assertTaskActionMessageAndRedirection('delete');
     }
 
+    public function testAuthenticatedUserIsBoundToCreatedTask()
+    {
+        $this->authenticateClient();
+        
+        // Client arrives on the create task page
+        $this->crawler = $this->client->request('GET', '/tasks/create');
+
+        //Submit the form with provider data
+        $this->submitTaskForm('Ajouter');
+
+        /**@var App/Entity/Task $newTask */
+        $newTask = $this->getEntityRepo('App:Task')->findOneBy(['title' => 'Une grosse tache']);
+        $authenticateduser = $this->getEntityRepo('App:User')->findOneBy(['email' => 'unique@unique.com']);
+
+        $this->assertSame($authenticateduser, $newTask->getUser());
+    }
+
     
     /**
      * Sets a default value for create user form and submits
@@ -76,7 +93,7 @@ class TaskControllerRecreateTest extends WebTestCase
         if (is_null($formValues)) {
             $formValues = [
                 'title' => 'Une grosse tache',
-                'content' => 'RAS'
+                'content' => 'RAS',
             ];
         }
 

@@ -89,6 +89,7 @@ class TaskControllerTest extends WebTestCase
         $this->assertEquals(1, count($this->getEntityRepo('App:Task')->findBy(['title' => 'Une grosse tache'])));
     }
 
+
     /**
      * Tests that no user is registered and help messages are displayed when form is not valid
      * @dataProvider nonValidFormFieldProvider

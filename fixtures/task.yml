@@ -3,3 +3,4 @@ App\Entity\Task:
         createdAt: <dateTimeBetween('-90 days', 'now')>
         title: Task <current()>
         content: <paragraph(2)>
+        user: '@user_*'
