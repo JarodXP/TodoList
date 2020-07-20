@@ -44,6 +44,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testCorrectNbOfUsersInList()
     {
+        $this->authenticateClient();
+
         $this->crawler = $this->client->request('GET', '/users');
 
         //Gets the number of users in database
@@ -61,6 +63,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitUserControllerValidForm()
     {
+        $this->authenticateClient();
+
         $this->client->followRedirects(false);
         
         // Client arrives on the create user page
@@ -87,6 +91,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitCreateUserFormWithExistingEmail()
     {
+        $this->authenticateClient();
+
         // Client arrives on the create user page
         $this->client->request('GET', '/users/create');
 
@@ -114,17 +120,9 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitUserControllerNonValidForm(array $formValues, string $expected)
     {
-        $this->client->request('GET', '/users/create');
-
-        // Temporay: while password validation non available
-        // When available, remove the following lines and uncomment provider's empty password
-        if ($formValues['firstPassword'] == '') {// Temp
-            $formValues['firstPassword'] = 'azerty';// Temp
-
-            $passwordValidation = false;// Temp
+        $this->authenticateClient();
         
-            $this->assertTrue($passwordValidation, 'Test to be removed when constraint added on null password');// Temp
-        }
+        $this->client->request('GET', '/users/create');
 
         //Submit the form with provider data
         $this->submitUserForm('Ajouter', $formValues);
