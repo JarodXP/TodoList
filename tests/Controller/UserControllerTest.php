@@ -116,16 +116,6 @@ class UserControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/users/create');
 
-        // Temporay: while password validation non available
-        // When available, remove the following lines and uncomment provider's empty password
-        if ($formValues['firstPassword'] == '') {// Temp
-            $formValues['firstPassword'] = 'azerty';// Temp
-
-            $passwordValidation = false;// Temp
-        
-            $this->assertTrue($passwordValidation, 'Test to be removed when constraint added on null password');// Temp
-        }
-
         //Submit the form with provider data
         $this->submitUserForm('Ajouter', $formValues);
 
