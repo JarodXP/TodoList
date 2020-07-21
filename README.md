@@ -21,3 +21,11 @@ APP_ENV=dev
 APP_SECRET='To be defined'  
 DATABASE_URL='To be defined' (recommended: use SQLite: DATABASE_URL=sqlite:///%kernel.project_dir%/var/data.db)  
 3. Run a composer install  
+
+## Setup  
+
+Run the following commands:  
+
+1. `php bin\console doctrine:database:create`
+2. `php bin\console doctrine:schema:create`
+3. `php bin\console hautelook:fixtures:load`  

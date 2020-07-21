@@ -48,6 +48,11 @@ class User implements UserInterface
      */
     private $tasks;
 
+    /**
+     * @ORM\Column(type="array", nullable=true)
+     */
+    private $roles = [];
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
@@ -93,9 +98,27 @@ class User implements UserInterface
         $this->email = $email;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
-        return array('ROLE_USER');
+        if (empty($this->roles)) {
+            return array('ROLE_USER');
+        } else {
+            return $this->roles;
+        }
+    }
+
+    public function addRole(?string $role): self
+    {
+        $this->roles[] = $role;
+
+        return $this;
+    }
+    public function removeRole(string $role): self
+    {
+        $index = array_search($role, $this->roles);
+        unset($this->roles[$index]);
+
+        return $this;
     }
 
     public function eraseCredentials()
