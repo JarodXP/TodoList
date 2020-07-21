@@ -6,5 +6,12 @@ App\Entity\User:
 
     user_unique:
         username: unique
-        password: azerty
         email: unique@unique.com
+        password: azerty
+
+    user_admin:
+        username: admin
+        password: azerty
+        email: admin@admin.com
+        __calls:
+            - addRole: ["ROLE_ADMIN"]

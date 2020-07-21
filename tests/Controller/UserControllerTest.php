@@ -100,7 +100,8 @@ class UserControllerTest extends WebTestCase
                 'username' => 'Reuno',
                 'firstPassword' => 'azerty',
                 'secondPassword' => 'azerty',
-                'email' => 'unique@unique.com'
+                'email' => 'unique@unique.com',
+                'roles' => ['ROLE_USER']
             ];
 
         //Submits the form
@@ -148,6 +149,33 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
+     * test editAction
+     * tests if choice list roles form field displays the correct role
+     */
+    public function testRoleChoiceListDiplaysCorrectRoleForEditUser()
+    {
+        $this->authenticateClient();
+                
+        $user = $this->getEntityRepo('App:User')->findOneBy(['email' => 'admin@admin.com']);
+        $this->crawler = $this->client->request('GET', '/users/'.$user->getId().'/edit');
+
+        $this->assertSelectorExists('#user_roles_0[checked="checked"]');
+        $this->assertSelectorNotExists('#user_roles_1[checked="checked"]');
+    }
+
+    /**
+     * test createAction
+     * tests if choice list roles form field is displayed for create page
+     */
+    public function testRoleChoiceListIsDiplayedForCreateUserWithDefaultRoleUser()
+    {
+        $this->crawler = $this->client->request('GET', '/users/create');
+
+        $this->assertSelectorNotExists('#user_roles_0[checked="checked"]');
+        $this->assertSelectorExists('#user_roles_1[checked="checked"]');
+    }
+
+    /**
      * Provides a set of form field values for create user form
      */
     public function nonValidFormFieldProvider()
@@ -159,7 +187,8 @@ class UserControllerTest extends WebTestCase
                                     'username' => 'Arthur',
                                     'firstPassword' => 'ytreza',
                                     'secondPassword' => 'azerty',
-                                    'email' => 'arthur@gmail.com'
+                                    'email' => 'arthur@gmail.com',
+                                    'roles' => ['ROLE_USER']
                                     ],
                     'expected' => 'Les deux mots de passe doivent correspondre.'
                 ],
@@ -169,7 +198,8 @@ class UserControllerTest extends WebTestCase
                                     'username' => '',
                                     'firstPassword' => 'azerty',
                                     'secondPassword' => 'azerty',
-                                    'email' => 'alias@gmail.com'
+                                    'email' => 'alias@gmail.com',
+                                    'roles' => ['ROLE_USER']
                                     ],
                     'expected' => 'Vous devez saisir un nom d\'utilisateur.'
                 ],
@@ -179,7 +209,8 @@ class UserControllerTest extends WebTestCase
                                     'username' => 'junior',
                                     'firstPassword' => '',
                                     'secondPassword' => '',
-                                    'email' => 'junior@gmail.com'
+                                    'email' => 'junior@gmail.com',
+                                    'roles' => ['ROLE_USER']
                                     ],
                     'expected' => 'Vous devez saisir un mot de passe.'
                 ],
@@ -189,7 +220,8 @@ class UserControllerTest extends WebTestCase
                                     'username' => 'Robert',
                                     'firstPassword' => 'azerty',
                                     'secondPassword' => 'azerty',
-                                    'email' => ''
+                                    'email' => '',
+                                    'roles' => ['ROLE_USER']
                                     ],
                     'expected' => 'Vous devez saisir une adresse email.'
                 ]
@@ -199,7 +231,7 @@ class UserControllerTest extends WebTestCase
     /**
      * Sets a default value for create user form and submits
      */
-    protected function submitUserForm(string $btnText, array $formValues = null)
+    /*protected function submitUserForm(string $btnText, array $formValues = null)
     {
         if (is_null($formValues)) {
             $formValues = [
@@ -216,5 +248,5 @@ class UserControllerTest extends WebTestCase
                 'user[password][second]' => $formValues['secondPassword'],
                 'user[email]' => $formValues['email']
             ]);
-    }
+    }*/
 }

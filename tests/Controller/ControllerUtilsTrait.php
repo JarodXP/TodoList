@@ -54,4 +54,36 @@ trait ControllerUtilsTrait
 
         $this->assertResponseRedirects($url);
     }
+
+    /**
+     * Possibly sets a default value for user form and submits
+     */
+    protected function submitUserForm(string $btnText, array $formValues = null)
+    {
+        //Sets default values
+        if (is_null($formValues)) {
+            $formValues = [
+                'username' => 'Beber',
+                'firstPassword' => 'azerty',
+                'secondPassword' => 'azerty',
+                'email' => 'beber@gmail.com',
+                'roles' => ['ROLE_USER']
+            ];
+        }
+
+        //Sets the form roles choice type options
+        array_search('ROLE_USER', $formValues['roles']) !== false ? $formValues['roleUser'] = true : $formValues['roleUser'] = false;
+        array_search('ROLE_ADMIN', $formValues['roles']) !== false ? $formValues['roleAdmin'] = true : $formValues['roleAdmin'] = false;
+
+
+        //Submits the form by setting the form fields values
+        $this->crawler = $this->client->submitForm($btnText, [
+                'user[username]' => $formValues['username'],
+                'user[password][first]' => $formValues['firstPassword'],
+                'user[password][second]' => $formValues['secondPassword'],
+                'user[email]' => $formValues['email'],
+                'user[roles][0]' => $formValues['roleAdmin'],
+                'user[roles][1]' => $formValues['roleUser']
+            ]);
+    }
 }

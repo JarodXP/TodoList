@@ -46,7 +46,8 @@ class UserControllerRecreateTest extends WebTestCase
             'username' => $user->getUsername(),
             'firstPassword' => 'azerty',
             'secondPassword' => 'azerty',
-            'email' => $user->getEmail()
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles()
         ];
 
         $this->submitUserForm('Modifier', $formValues);
@@ -54,26 +55,27 @@ class UserControllerRecreateTest extends WebTestCase
         $this->assertResponseRedirects('/users');
     }
 
-    
     /**
-     * Sets a default value for create user form and submits
+     * test createAtion
+     * Tests that role is registered in database after subscription.
      */
-    protected function submitUserForm(string $btnText, array $formValues = null)
+    public function testRoleIsSetWhenUserIsCreated()
     {
-        if (is_null($formValues)) {
-            $formValues = [
-                'username' => 'Beber',
-                'firstPassword' => 'azerty',
-                'secondPassword' => 'azerty',
-                'email' => 'beber@gmail.com'
-            ];
-        }
+        $this->client->request('GET', '/users/create');
 
-        $this->crawler = $this->client->submitForm($btnText, [
-                'user[username]' => $formValues['username'],
-                'user[password][first]' => $formValues['firstPassword'],
-                'user[password][second]' => $formValues['secondPassword'],
-                'user[email]' => $formValues['email']
-            ]);
+        $formValues = [
+            'username' => 'admin0',
+            'firstPassword' => 'azerty',
+            'secondPassword' => 'azerty',
+            'email' => 'admin@gmail.com',
+            'roles' => ['ROLE_ADMIN']
+        ];
+
+        $this->submitUserForm('Ajouter', $formValues);
+        
+        /**@var App/Entity/User $newUser */
+        $newUser = $this->getEntityRepo('App:User')->findOneBy(['email' => 'admin@gmail.com']);
+
+        $this->assertSame(['ROLE_ADMIN'], $newUser->getRoles());
     }
 }
