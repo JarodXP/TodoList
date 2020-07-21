@@ -16,7 +16,7 @@ trait ControllerUtilsTrait
      */
     protected static function getEntityRepo(string $entityClassName):EntityRepository
     {
-        static::bootKernel();
+        //static::bootKernel();
         $manager = static::$container->get('doctrine.orm.default_entity_manager');
         return static::$container->get('doctrine.orm.container_repository_factory')->getRepository($manager, $entityClassName);
     }

@@ -2,7 +2,7 @@ App\Entity\User:
     user_{1..10}:
         username: <userName()>
         password: <password()>
-        email: <email()>
+        email (unique): <email()>
 
     user_unique:
         username: unique
