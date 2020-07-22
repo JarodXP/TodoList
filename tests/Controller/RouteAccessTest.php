@@ -106,7 +106,7 @@ class RouteAccessTest extends WebTestCase
         
         //Gets the session user and a task he owns
         /**@var User $otherUser */
-        $otherUser = $this->getEntityRepo('App:User')->findAll()[0];
+        $otherUser = $this->getEntityRepo('App:User')->findOneBy(['email' => 'x@anonymous.com']);
         $nonOwnedTaskId = $this->getEntityRepo('App:Task')->findOneBy(['user' => $otherUser])->getId();
 
         $expectedStatus = [

@@ -4,6 +4,12 @@ App\Entity\Task:
         title: Task <current()>
         content: <paragraph(2)>
         user: '@user_*'
+
+    task_X:
+        createdAt: <dateTimeBetween('-90 days', 'now')>
+        title: Task X
+        content: <paragraph(2)>
+        user: '@user_X'    
     
     task_unique:
         createdAt: <dateTimeBetween('-90 days', 'now')>
