@@ -35,7 +35,8 @@ class UserControllerRecreateTest extends WebTestCase
      */
     public function testEditUserSubmitForm()
     {
-        $this->authenticateClient();
+        //Login with admin role
+        $this->authenticateClient('admin@admin.com');
         
         $this->client->followRedirects(false);
         

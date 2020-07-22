@@ -27,24 +27,10 @@ class UserControllerTest extends WebTestCase
     /**
      * Test listAction
      */
-    public function testListActionReturn200InSuccess()
-    {
-        $this->client->request('GET', '/users');
-
-        $this->assertResponseStatusCodeSame(200);
-    }
-
-    public function testUsersActionRedirectsToLoginWhenUserIsNotAuthenticated()
-    {
-        $this->assertsRedirectionToLoginWhenUserIsNotAuthenticated('/users');
-    }
-
-    /**
-     * Test listAction
-     */
     public function testCorrectNbOfUsersInList()
     {
-        $this->authenticateClient();
+        //Login with admin role
+        $this->authenticateClient('admin@admin.com');
 
         $this->crawler = $this->client->request('GET', '/users');
 
@@ -63,7 +49,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitUserControllerValidForm()
     {
-        $this->authenticateClient();
+        //Login with admin role
+        $this->authenticateClient('admin@admin.com');
 
         $this->client->followRedirects(false);
         
@@ -137,24 +124,13 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
-     * Test code return for editAction
-     */
-    public function testEditActionReturn200InSuccess()
-    {
-        $userId = $this->getEntityRepo('App:User')->findOneBy(['email' => 'unique@unique.com'])->getId();
-
-        $this->client->request('GET', '/users/'.$userId.'/edit');
-        
-        $this->assertResponseStatusCodeSame(200);
-    }
-
-    /**
      * test editAction
      * tests if choice list roles form field displays the correct role
      */
     public function testRoleChoiceListDiplaysCorrectRoleForEditUser()
     {
-        $this->authenticateClient();
+        //Login with admin role
+        $this->authenticateClient('admin@admin.com');
                 
         $user = $this->getEntityRepo('App:User')->findOneBy(['email' => 'admin@admin.com']);
         $this->crawler = $this->client->request('GET', '/users/'.$user->getId().'/edit');
@@ -227,26 +203,4 @@ class UserControllerTest extends WebTestCase
                 ]
         ];
     }
-
-    /**
-     * Sets a default value for create user form and submits
-     */
-    /*protected function submitUserForm(string $btnText, array $formValues = null)
-    {
-        if (is_null($formValues)) {
-            $formValues = [
-                'username' => 'Beber',
-                'firstPassword' => 'azerty',
-                'secondPassword' => 'azerty',
-                'email' => 'beber@gmail.com'
-            ];
-        }
-
-        $this->crawler = $this->client->submitForm($btnText, [
-                'user[username]' => $formValues['username'],
-                'user[password][first]' => $formValues['firstPassword'],
-                'user[password][second]' => $formValues['secondPassword'],
-                'user[email]' => $formValues['email']
-            ]);
-    }*/
 }

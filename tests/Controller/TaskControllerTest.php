@@ -24,23 +24,6 @@ class TaskControllerTest extends WebTestCase
         $this->client->followRedirects();
     }
 
-    public function testTasksActionsRedirectsToLoginWhenUserIsNotAuthenticated()
-    {
-        $this->assertsRedirectionToLoginWhenUserIsNotAuthenticated('/tasks');
-    }
-
-    /**
-     * Test listAction
-     */
-    public function testListActionReturn200WhenUserIsAuthenticated()
-    {
-        $this->authenticateClient();
-
-        $this->client->request('GET', '/tasks');
-
-        $this->assertResponseStatusCodeSame(200);
-    }
-
     /**
      * Test listAction
      */
@@ -109,20 +92,6 @@ class TaskControllerTest extends WebTestCase
         //Asserts error message
         $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
         $this->assertSame($expected, $alert);
-    }
-
-    /**
-     * Test code return for editAction
-     */
-    public function testEditActionReturn200InSuccess()
-    {
-        $this->authenticateClient();
-
-        $taskId = $this->getEntityRepo('App:Task')->findOneBy(['title' => 'Task 1'])->getId();
-
-        $this->client->request('GET', '/tasks/'.$taskId.'/edit');
-        
-        $this->assertResponseStatusCodeSame(200);
     }
 
     /**
