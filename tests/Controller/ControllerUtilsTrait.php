@@ -24,7 +24,7 @@ trait ControllerUtilsTrait
     /**
      * Simulates an authenticated user
      */
-    protected function authenticateClient()
+    protected function authenticateClient(string $email = 'unique@unique.com')
     {
         //Gets the repository and the authenticated user.
         //The RepoGetter method can't be used here as the $container property of the TestCase class
@@ -32,27 +32,9 @@ trait ControllerUtilsTrait
         $manager = static::$container->get('doctrine.orm.default_entity_manager');
         $userRepository = static::$container->get('doctrine.orm.container_repository_factory')->getRepository($manager, 'App:User');
 
-        $authenticatedUser = $userRepository->findOneBy(['email' => 'unique@unique.com']);
+        $authenticatedUser = $userRepository->findOneBy(['email' => $email]);
         
         $this->client->loginUser($authenticatedUser);
-    }
-
-    /**
-     * Tests the route redirects to login page if user is not authenticated
-     */
-    public function assertsRedirectionToLoginWhenUserIsNotAuthenticated(string $route)
-    {
-        $this->urlGenerator = static::$container->get('router');
-
-        //Avoid client to redirect in order to catch the Response before
-        $this->client->followRedirects(false);
-        
-        $this->client->request('GET', $route);
-
-        //Builds the absolute URL to compare with the location header
-        $url = $this->urlGenerator->generate('login', [], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        $this->assertResponseRedirects($url);
     }
 
     /**

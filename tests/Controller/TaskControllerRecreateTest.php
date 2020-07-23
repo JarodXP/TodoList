@@ -34,7 +34,7 @@ class TaskControllerRecreateTest extends WebTestCase
      */
     public function testEditTaskSubmitForm()
     {
-        $this->authenticateClient();
+        $this->authenticateClient('admin@admin.com');
         $this->client->followRedirects(false);
         
         /**@var App/Entity/Task $task*/
@@ -110,7 +110,7 @@ class TaskControllerRecreateTest extends WebTestCase
     {
         $this->client->followRedirects(false);
         
-        $this->authenticateClient();
+        $this->authenticateClient('admin@admin.com');
 
         //Gets Task 1
         $task = $this->getEntityRepo('App:Task')->findOneBy(['title' => 'Task 1']);

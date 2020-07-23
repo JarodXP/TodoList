@@ -7,6 +7,7 @@ use App\Form\TaskType;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 class TaskController extends AbstractController
 {
@@ -48,6 +49,7 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks/{id}/edit", name="task_edit")
+     * @IsGranted("edit",subject="task")
      */
     public function editAction(Task $task, Request $request)
     {
@@ -71,7 +73,7 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks/{id}/toggle", name="task_toggle")
-     *
+     * @IsGranted("edit",subject="task")
      */
     public function toggleTaskAction(Task $task)
     {
@@ -85,6 +87,7 @@ class TaskController extends AbstractController
 
     /**
      * @Route("/tasks/{id}/delete", name="task_delete")
+     * @IsGranted("edit",subject="task")
      */
     public function deleteTaskAction(Task $task)
     {
