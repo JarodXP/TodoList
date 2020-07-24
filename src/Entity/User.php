@@ -2,12 +2,14 @@
 
 namespace App\Entity;
 
+use App\Tests\Exception\PasswordEncodingRequired;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @ORM\Table("user")
@@ -35,6 +37,11 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=64)
      */
     private $password;
+
+    /**
+     * Only used to store temporary plain password
+     */
+    private $plainPassword;
 
     /**
      * @ORM\Column(type="string", length=60, unique=true)
@@ -68,9 +75,11 @@ class User implements UserInterface
         return $this->username;
     }
 
-    public function setUsername($username)
+    public function setUsername($username): self
     {
         $this->username = $username;
+
+        return $this;
     }
 
     public function getSalt()
@@ -78,9 +87,21 @@ class User implements UserInterface
         return null;
     }
 
-    public function getPassword()
+    public function getPassword(): ?string
     {
         return $this->password;
+    }
+
+    public function getPlainPassword(): ?string
+    {
+        return $this->plainPassword;
+    }
+
+    public function setPlainPassword(?string $plainPassword): self
+    {
+        $this->plainPassword = $plainPassword;
+
+        return $this;
     }
 
     public function setPassword($password)
@@ -88,14 +109,16 @@ class User implements UserInterface
         $this->password = $password;
     }
 
-    public function getEmail()
+    public function getEmail(): ?string
     {
         return $this->email;
     }
 
-    public function setEmail($email)
+    public function setEmail($email): self
     {
         $this->email = $email;
+
+        return $this;
     }
 
     public function getRoles(): array
