@@ -12,11 +12,11 @@ App\Entity\User:
     user_unique:
         username: unique
         email: unique@unique.com
-        password: azerty
+        plainPassword: azerty
 
     user_admin:
         username: admin
-        password: azerty
+        plainPassword: azerty
         email: admin@admin.com
         __calls:
             - addRole: ["ROLE_ADMIN"]

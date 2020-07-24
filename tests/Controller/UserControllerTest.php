@@ -73,36 +73,6 @@ class UserControllerTest extends WebTestCase
     }
 
     /**
-     * Test createAction
-     * Tests that no user is created and error message displayed when using existing email
-     */
-    public function testSubmitCreateUserFormWithExistingEmail()
-    {
-        $this->authenticateClient();
-
-        // Client arrives on the create user page
-        $this->client->request('GET', '/users/create');
-
-        $formValues = [
-                'username' => 'Reuno',
-                'firstPassword' => 'azerty',
-                'secondPassword' => 'azerty',
-                'email' => 'unique@unique.com',
-                'roles' => ['ROLE_USER']
-            ];
-
-        //Submits the form
-        $this->submitUserForm('Ajouter', $formValues);
-
-        //Asserts no user has been created
-        $this->assertEquals(1, count($this->getEntityRepo('App:User')->findBy(['email' => 'unique@unique.com'])));
-
-        //Asserts error message
-        $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
-        $this->assertSame('Cette adresse mail existe déjà', $alert);
-    }
-
-    /**
      * Tests that no user is registered and help messages are displayed when form is not valid
      * @dataProvider nonValidFormFieldProvider
      */
@@ -121,34 +91,6 @@ class UserControllerTest extends WebTestCase
         //Asserts error message
         $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
         $this->assertSame($expected, $alert);
-    }
-
-    /**
-     * test editAction
-     * tests if choice list roles form field displays the correct role
-     */
-    public function testRoleChoiceListDiplaysCorrectRoleForEditUser()
-    {
-        //Login with admin role
-        $this->authenticateClient('admin@admin.com');
-                
-        $user = $this->getEntityRepo('App:User')->findOneBy(['email' => 'admin@admin.com']);
-        $this->crawler = $this->client->request('GET', '/users/'.$user->getId().'/edit');
-
-        $this->assertSelectorExists('#user_roles_0[checked="checked"]');
-        $this->assertSelectorNotExists('#user_roles_1[checked="checked"]');
-    }
-
-    /**
-     * test createAction
-     * tests if choice list roles form field is displayed for create page
-     */
-    public function testRoleChoiceListIsDiplayedForCreateUserWithDefaultRoleUser()
-    {
-        $this->crawler = $this->client->request('GET', '/users/create');
-
-        $this->assertSelectorNotExists('#user_roles_0[checked="checked"]');
-        $this->assertSelectorExists('#user_roles_1[checked="checked"]');
     }
 
     /**
@@ -202,5 +144,63 @@ class UserControllerTest extends WebTestCase
                     'expected' => 'Vous devez saisir une adresse email.'
                 ]
         ];
+    }
+
+    /**
+     * Test createAction
+     * Tests that no user is created and error message displayed when using existing email
+     */
+    public function testSubmitCreateUserFormWithExistingEmail()
+    {
+        $this->authenticateClient();
+
+        // Client arrives on the create user page
+        $this->client->request('GET', '/users/create');
+
+        $formValues = [
+                'username' => 'Reuno',
+                'firstPassword' => 'azerty',
+                'secondPassword' => 'azerty',
+                'email' => 'unique@unique.com',
+                'roles' => ['ROLE_USER']
+            ];
+
+        //Submits the form
+        $this->submitUserForm('Ajouter', $formValues);
+
+        //Asserts no user has been created
+        $this->assertEquals(1, count($this->getEntityRepo('App:User')->findBy(['email' => 'unique@unique.com'])));
+
+        //Asserts error message
+        $alert = $this->crawler->filter('div.has-error > .help-block li')->text();
+        $this->assertSame('Cette adresse mail existe déjà', $alert);
+    }
+
+    /**
+     * test editAction
+     * tests if choice list roles form field displays the correct role
+     */
+    public function testRoleChoiceListDiplaysCorrectRoleForEditUser()
+    {
+        //Login with admin role
+        $this->authenticateClient('admin@admin.com');
+                
+        $user = $this->getEntityRepo('App:User')->findOneBy(['email' => 'admin@admin.com']);
+        $this->crawler = $this->client->request('GET', '/users/'.$user->getId().'/edit');
+
+        $this->assertSelectorExists('#user_roles_0[checked="checked"]');
+        $this->assertSelectorNotExists('#user_roles_1[checked="checked"]');
+    }
+
+    /**
+     * test createAction
+     * tests if choice list roles form field is displayed for create page
+     */
+    public function testRoleChoiceListIsDiplayedForCreateUserWithDefaultRoleUser()
+    {
+        $this->crawler = $this->client->request('GET', '/users/create');
+
+        $this->assertSelectorNotExists('#user_roles_0[checked="checked"]');
+        $this->assertSelectorExists('#user_roles_1[checked="checked"]');
     }
 }

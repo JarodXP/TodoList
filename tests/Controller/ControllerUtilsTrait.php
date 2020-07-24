@@ -61,8 +61,8 @@ trait ControllerUtilsTrait
         //Submits the form by setting the form fields values
         $this->crawler = $this->client->submitForm($btnText, [
                 'user[username]' => $formValues['username'],
-                'user[password][first]' => $formValues['firstPassword'],
-                'user[password][second]' => $formValues['secondPassword'],
+                'user[plainPassword][first]' => $formValues['firstPassword'],
+                'user[plainPassword][second]' => $formValues['secondPassword'],
                 'user[email]' => $formValues['email'],
                 'user[roles][0]' => $formValues['roleAdmin'],
                 'user[roles][1]' => $formValues['roleUser']
