@@ -28,3 +28,6 @@ services:
     App\EventListener\UserPasswordHasher:
         tags:
             - { name: 'doctrine.event_subscriber' }
+    App\EventListener\AnonymousUserListener:
+        tags:
+            - { name: 'doctrine.event_subscriber' }

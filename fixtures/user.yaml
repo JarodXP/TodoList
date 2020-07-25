@@ -5,7 +5,7 @@ App\Entity\User:
         email (unique): <email()>
 
     user_X:
-        username: <userName()>
+        username: x
         password: <password()>
         email: x@anonymous.com
 
