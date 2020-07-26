@@ -23,6 +23,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/users/create", name="user_create")
+     * @IsGranted("ROLE_ADMIN")
      */
     public function createUser(Request $request, UserPasswordEncoderInterface $passwordEncoder)
     {
