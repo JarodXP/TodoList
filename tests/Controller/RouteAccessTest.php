@@ -34,8 +34,11 @@ class RouteAccessTest extends WebTestCase
         $taskId = $this->getEntityRepo('App:Task')->findAll()[0]->getId();
 
         $expectedStatus = [
+            'home' => 302,
+            'login' => 200,
+            'logout' => 302,
             'userList' => 302,
-            'userCreate' => 200,
+            'userCreate' => 302,
             'userEdit' => 302,
             'taskList' => 302,
             'taskEdit' => 302,
@@ -46,15 +49,13 @@ class RouteAccessTest extends WebTestCase
 
         $this->assertStatusCodes($route, 'Failure for NON_AUTHENTICATED user: '.$message, $tag, $expectedStatus, $taskId);
 
-        //Asserts redirection except create action
-        if ($tag !== 'user-create') {
-
-            //Uses the url generator as Guard Authenticator sets the location header with absolute path.
-            $this->urlGenerator = static::$container->get('router');
-
-            //Builds the absolute URL to compare with the location header
-            $locationRoute = $this->urlGenerator->generate('login', [], UrlGeneratorInterface::ABSOLUTE_URL);
-            $this->assertResponseRedirects($locationRoute);
+        //Asserts redirection except for login
+        if ($tag !== 'login') {
+            if ($tag !== 'logout') {
+                $this->assertsRedirection('login');
+            } else {
+                $this->assertsRedirection('homepage');
+            }
         }
     }
 
@@ -75,8 +76,11 @@ class RouteAccessTest extends WebTestCase
         $ownedTaskId = $this->getEntityRepo('App:Task')->findOneBy(['user' => $currentUser])->getId();
 
         $expectedStatus = [
+            'home' => 200,
+            'login' => 200,
+            'logout' => 302,
             'userList' => 403,
-            'userCreate' => 200,
+            'userCreate' => 403,
             'userEdit' => 403,
             'taskList' => 200,
             'taskEdit' => 200,
@@ -89,7 +93,9 @@ class RouteAccessTest extends WebTestCase
 
         //Asserts redirection url for 302 codes
         if ($tag == 'task-toggle' || $tag == 'task-delete') {
-            $this->assertResponseRedirects('/tasks');
+            $this->assertsRedirection('/tasks');
+        } elseif ($tag == 'logout') {
+            $this->assertsRedirection('homepage');
         }
     }
 
@@ -135,6 +141,9 @@ class RouteAccessTest extends WebTestCase
         $ownedTaskId = $this->getEntityRepo('App:Task')->findOneBy(['user' => $currentUser])->getId();
 
         $expectedStatus = [
+            'home' => 200,
+            'login' => 200,
+            'logout' => 302,
             'userList' => 200,
             'userCreate' => 200,
             'userEdit' => 200,
@@ -149,7 +158,7 @@ class RouteAccessTest extends WebTestCase
 
         //Asserts redirection url for 302 codes
         if ($tag == 'task-toggle' || $tag == 'task-delete') {
-            $this->assertResponseRedirects('/tasks');
+            $this->assertsRedirection('/tasks');
         }
     }
 
@@ -179,7 +188,7 @@ class RouteAccessTest extends WebTestCase
         
         //Asserts redirection url for 302 codes
         if ($tag == 'non-owned-task-toggle' || $tag == 'non-owned-task-delete') {
-            $this->assertResponseRedirects('/tasks');
+            $this->assertsRedirection('/tasks');
         }
     }
 
@@ -188,7 +197,7 @@ class RouteAccessTest extends WebTestCase
      */
     public function assertsRedirection(string $locationRoute)
     {
-        if ($locationRoute == 'login') {
+        if ($locationRoute == 'login' || $locationRoute == 'homepage') {
 
             //Uses the url generator as Guard Authenticator sets the location header with absolute path.
             $this->urlGenerator = static::$container->get('router');
@@ -206,6 +215,21 @@ class RouteAccessTest extends WebTestCase
     public function routeProvider()
     {
         return [
+                [
+                    'route' => '/',
+                    'message' => 'on homepage',
+                    'tag' => 'home'
+                ],
+                [
+                    'route' => '/login',
+                    'message' => 'on login',
+                    'tag' => 'login'
+                ],
+                [
+                    'route' => '/logout',
+                    'message' => 'on logout',
+                    'tag' => 'logout'
+                ],
                 [
                     'route' => '/users',
                     'message' => 'on users list',
@@ -287,6 +311,15 @@ class RouteAccessTest extends WebTestCase
 
         //Sets the expected status codes
         switch ($tag) {
+            case 'home': $assertionCode = $expectedStatus['home'];
+            break;
+
+            case 'login': $assertionCode = $expectedStatus['login'];
+            break;
+
+            case 'logout': $assertionCode = $expectedStatus['logout'];
+            break;
+
             case 'user-list': $assertionCode = $expectedStatus['userList'];
             break;
 

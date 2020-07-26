@@ -78,7 +78,7 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitUserControllerNonValidForm(array $formValues, string $expected)
     {
-        $this->authenticateClient();
+        $this->authenticateClient('admin@admin.com');
         
         $this->client->request('GET', '/users/create');
 
@@ -152,7 +152,7 @@ class UserControllerTest extends WebTestCase
      */
     public function testSubmitCreateUserFormWithExistingEmail()
     {
-        $this->authenticateClient();
+        $this->authenticateClient('admin@admin.com');
 
         // Client arrives on the create user page
         $this->client->request('GET', '/users/create');
@@ -198,6 +198,8 @@ class UserControllerTest extends WebTestCase
      */
     public function testRoleChoiceListIsDiplayedForCreateUserWithDefaultRoleUser()
     {
+        $this->authenticateClient('admin@admin.com');
+
         $this->crawler = $this->client->request('GET', '/users/create');
 
         $this->assertSelectorNotExists('#user_roles_0[checked="checked"]');

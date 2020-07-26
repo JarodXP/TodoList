@@ -62,6 +62,7 @@ class UserControllerRecreateTest extends WebTestCase
      */
     public function testRoleIsSetWhenUserIsCreated()
     {
+        $this->authenticateClient('admin@admin.com');
         $this->client->request('GET', '/users/create');
 
         $formValues = [
