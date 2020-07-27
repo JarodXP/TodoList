@@ -29,19 +29,16 @@ class UserPasswordHasher implements EventSubscriber
 
     public function prePersist(LifecycleEventArgs $args)
     {
-        //Gets the entity from the Doctrine event
-        $object = $args->getObject();
-
-        //Checks if the entity is a User
-        if (!$object instanceof User) {
-            return;
-        }
-
-        $this->encodePassword($object);
+        $this->encodePassword($args);
     }
 
     public function preUpdate(LifecycleEventArgs $args)
     {
+        $this->encodePassword($args);
+    }
+
+    private function encodePassword(LifecycleEventArgs $args)
+    {
         //Gets the entity from the Doctrine event
         $object = $args->getObject();
 
@@ -50,21 +47,11 @@ class UserPasswordHasher implements EventSubscriber
             return;
         }
 
-        $this->encodePassword($object);
-
-        // necessary to force the update to see the change
-        /*$em = $args->getObjectManager();
-        $meta = $em->getClassMetadata(get_class($object));
-        $em->getUnitOfWork()->recomputeSingleEntityChangeSet($meta, $object);*/
-    }
-
-    private function encodePassword($user)
-    {
         //Checks the case where plain password is null and password is not null to prevent undesired password modification
-        if (!(is_null($user->getPlainPassword()) && !is_null($user->getPassword()))) {
+        if (!(is_null($object->getPlainPassword()) && !is_null($object->getPassword()))) {
             
             //sets the encoded password
-            $user->setPassword($this->encoder->encodePassword($user, $user->getPlainPassword()));
+            $object->setPassword($this->encoder->encodePassword($object, $object->getPlainPassword()));
         }
     }
 }
