@@ -5,6 +5,8 @@ declare(strict_types = 1);
 namespace App\Tests\EventListener;
 
 use App\Entity\User;
+use App\EventListener\PrePersistPasswordHasher;
+use App\EventListener\PreUpdatePasswordHasher;
 use App\EventListener\UserPasswordHasher;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -26,14 +28,14 @@ class UserPasswordHasherTest extends KernelTestCase
         static::bootKernel();
         $encoder = static::$container->get('security.user_password_encoder.generic');
 
-        $listener = new UserPasswordHasher($encoder);
+        $listener = new PrePersistPasswordHasher($encoder);
 
         //Uses LifeCycleEventArgs as stub for the listener.
         $lyfeCicleEventArgs = $this->createMock(LifecycleEventArgs::class);
         $lyfeCicleEventArgs->method('getObject')
             ->willReturn($user);
 
-        $listener->prePersist($lyfeCicleEventArgs);
+        $listener->prePersist($user, $lyfeCicleEventArgs);
 
         $this->assertTrue($encoder->isPasswordValid($user, 'azerty'));
     }
@@ -54,7 +56,7 @@ class UserPasswordHasherTest extends KernelTestCase
         $user = $entityManager->getRepository('App:User')->findOneBy(['email' => 'unique@unique.com']);
         $user->setPlainPassword('ytreza');
 
-        $listener = new UserPasswordHasher($encoder);
+        $listener = new PreUpdatePasswordHasher($encoder);
 
         //Uses LifeCycleEventArgs as stub for the listener.
         $lyfeCicleEventArgs = $this->createMock(LifecycleEventArgs::class);
@@ -63,7 +65,7 @@ class UserPasswordHasherTest extends KernelTestCase
         $lyfeCicleEventArgs->method('getObjectManager')
             ->willReturn($entityManager);
 
-        $listener->preUpdate($lyfeCicleEventArgs);
+        $listener->preUpdate($user, $lyfeCicleEventArgs);
 
         $this->assertTrue($encoder->isPasswordValid($user, 'ytreza'));
     }
