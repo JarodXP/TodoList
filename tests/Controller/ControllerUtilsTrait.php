@@ -6,6 +6,7 @@ namespace App\Tests\Controller;
 
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 
 trait ControllerUtilsTrait
 {

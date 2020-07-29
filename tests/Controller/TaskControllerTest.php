@@ -4,11 +4,13 @@ declare(strict_types = 1);
 
 namespace App\Tests\Controller;
 
+use App\Entity\User;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Core\Security;
 
 class TaskControllerTest extends WebTestCase
 {
@@ -26,22 +28,51 @@ class TaskControllerTest extends WebTestCase
 
     /**
      * Test listAction
+     * @dataProvider provideUsersForTaskList
      */
-    public function testCorrectNbOfTasksInList()
+    public function testCorrectNbOfTasksInList(string $email, string $message)
     {
-        $this->authenticateClient();
+        $this->authenticateClient($email);
         
         $this->crawler = $this->client->request('GET', '/tasks');
 
-        $repo = $this->getEntityRepo('App:Task');
+        /**@var User $user */
+        $user = $this->getEntityRepo('App:User')->findOneBy(['email' => $email]);
+        
+        /**@var Security $security */
+        $security = static::$container->get('security.helper');
 
-        //Gets the number of tasks in database
-        $tasksInDb = count($this->getEntityRepo('App:Task')->findAll());
+        if ($security->isGranted('ROLE_ADMIN', $user)) {
+
+            //Gets the total number of tasks in database
+            $tasksInDb = count($this->getEntityRepo('App:Task')->findAll());
+        } else {
+
+            //Gets the number of tasks in database the user owns
+            $tasksInDb = count($this->getEntityRepo('App:Task')->findBy(['user' => $user->getId()]));
+        }
 
         //Counts the number of users displayed in the list
         $tasksInList = count($this->crawler->filter('div.thumbnail'));
 
-        $this->assertEquals($tasksInDb, $tasksInList);
+        $this->assertEquals($tasksInDb, $tasksInList, 'Failed for assert task list '.$message);
+    }
+
+    /**
+     * Provides users to test task list
+     */
+    public function provideUsersForTaskList()
+    {
+        return [
+            [
+                'email' => 'admin@admin.com',
+                'message' => 'on Admin user'
+            ],
+            [
+                'email' => 'unique@unique.com',
+                'message' => 'on Unique user'
+            ]
+        ];
     }
 
     /**

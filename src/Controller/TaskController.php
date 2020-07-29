@@ -16,7 +16,18 @@ class TaskController extends AbstractController
      */
     public function taskList()
     {
-        return $this->render('task/list.html.twig', ['tasks' => $this->getDoctrine()->getRepository('App:Task')->findAll()]);
+        $user = $this->getUser();
+
+        $repo = $this->getDoctrine()->getRepository('App:Task');
+
+        //Gets only the user's tasks except for the admin who gets all tasks
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $tasks = $repo->findAll();
+        } else {
+            $tasks = $repo->findBy(['user' => $user]);
+        }
+        
+        return $this->render('task/list.html.twig', ['tasks' => $tasks]);
     }
 
     /**
