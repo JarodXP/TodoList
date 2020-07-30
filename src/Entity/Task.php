@@ -25,7 +25,6 @@ class Task
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\NotBlank(message="Vous devez saisir un titre.")
      */
     private $title;
 

@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Length;
 
 class UserType extends AbstractType
@@ -31,7 +32,12 @@ class UserType extends AbstractType
         }
 
         $builder
-            ->add('username', TextType::class, ['label' => "Nom d'utilisateur"])
+            ->add('username', TextType::class, [
+                'label' => "Nom d'utilisateur",
+                'constraints' => [
+                    new NotBlank(['message' => 'Vous devez saisir un nom d\'utilisateur.'])
+                ]
+                ])
             ->add(
                 'plainPassword',
                 RepeatedType::class,
@@ -54,7 +60,13 @@ class UserType extends AbstractType
                     )
                 ]
             )
-            ->add('email', EmailType::class, ['label' => 'Adresse email'])
+            ->add('email', EmailType::class, [
+                'label' => 'Adresse email',
+                'constraints' => [
+                    new NotBlank(['message' => 'Vous devez saisir une adresse email.']),
+                    new Email(['message' => 'Le format de l\'adresse n\'est pas correcte.'])
+                ]
+                ])
             ->add('roles', ChoiceType::class, [
                 'choices' => [
                     'Administrateur' => 'ROLE_ADMIN',
@@ -73,7 +85,15 @@ class UserType extends AbstractType
             'sortFieldList'=>[],
             'filterFieldList'=>[],
             'attr'=>['id'=>'pagination'],
-            'update'=>false
+            'update'=>false,
+            'uniqueEntity' => [
+                'fields' => ['email'],
+                'message' => 'Cette adresse mail existe déjà'
+            ],
+            'uniqueEntity' => [
+                'fields' => ['username'],
+                'message' => 'Ce username existe déjà'
+            ]
         ]);
     }
 }
