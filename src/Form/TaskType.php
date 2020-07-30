@@ -7,6 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class TaskType extends AbstractType
 {
@@ -18,11 +19,14 @@ class TaskType extends AbstractType
                     new Length([
                         'max' => 20,
                         'maxMessage' => 'Le titre ne doit pas dépasser 20 caractères'
-                    ])
+                    ]),
+                    new NotBlank(['message' => 'Vous devez saisir un titre.'])
                 ]
             ])
-            ->add('content', TextareaType::class)
-            //->add('author') ===> must be the user authenticated
-        ;
+            ->add('content', TextareaType::class, [
+                'constraints' => [
+                    new NotBlank(['message' => 'Vous devez saisir du contenu.'])
+                ]
+            ]);
     }
 }

@@ -8,6 +8,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Hautelook\AliceBundle\PhpUnit\RefreshDatabaseTrait;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class RouteAccessTest extends WebTestCase
@@ -89,7 +90,10 @@ class RouteAccessTest extends WebTestCase
             'taskDelete' => 302
         ];
 
-        $this->assertStatusCodes($route, 'Failure for ROLE_USER: '.$message, $tag, $expectedStatus, $ownedTaskId);
+        try {
+            $this->assertStatusCodes($route, 'Failure for ROLE_USER: '.$message, $tag, $expectedStatus, $ownedTaskId);
+        } catch (AccessDeniedHttpException $e) {
+        }
 
         //Asserts redirection url for 302 codes
         if ($tag == 'task-toggle' || $tag == 'task-delete') {
@@ -121,7 +125,10 @@ class RouteAccessTest extends WebTestCase
             'nonOwnedTaskDelete' => 403
         ];
 
-        $this->assertStatusCodes($route, 'Failure for ROLE_USER: '.$message, $tag, $expectedStatus, $nonOwnedTaskId);
+        try {
+            $this->assertStatusCodes($route, 'Failure for ROLE_USER: '.$message, $tag, $expectedStatus, $nonOwnedTaskId);
+        } catch (AccessDeniedHttpException $e) {
+        }
     }
 
     /**
@@ -155,7 +162,7 @@ class RouteAccessTest extends WebTestCase
         ];
 
         $this->assertStatusCodes($route, 'Failure for ROLE_ADMIN: '.$message, $tag, $expectedStatus, $ownedTaskId);
-
+        
         //Asserts redirection url for 302 codes
         if ($tag == 'task-toggle' || $tag == 'task-delete') {
             $this->assertsRedirection('/tasks');
@@ -175,7 +182,7 @@ class RouteAccessTest extends WebTestCase
         
         //Gets the session user and a task he owns
         /**@var User $otherUser */
-        $otherUser = $this->getEntityRepo('App:User')->findAll()[0];
+        $otherUser = $this->getEntityRepo('App:User')->findOneBy(['email' => 'unique@unique.com']);
         $nonOwnedTaskId = $this->getEntityRepo('App:Task')->findOneBy(['user' => $otherUser])->getId();
 
         $expectedStatus = [
